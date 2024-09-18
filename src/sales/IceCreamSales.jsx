@@ -10,7 +10,7 @@ const IceCreamSales = () => {
   const [itemOrderStats, setItemOrderStats] = useState({});
 
   useEffect(() => {
-    fetch("/salesData.json") 
+    fetch("/salesData.json")
       .then((response) => response.json())
       .then((data) => {
         setParsedData(data);
@@ -20,10 +20,10 @@ const IceCreamSales = () => {
         const monthlyRevenue = {};
         const itemStats = {};
 
-        let totalSalesAmount = 0; 
+        let totalSalesAmount = 0;
 
         data.forEach(({ Date, SKU, Quantity, TotalPrice }) => {
-          const month = Date.slice(0, 7); 
+          const month = Date.slice(0, 7);
 
           // 1. Accumulate total sales
           totalSalesAmount += TotalPrice;
@@ -45,7 +45,6 @@ const IceCreamSales = () => {
           itemStats[SKU].push(Quantity);
         });
 
-        // Set total sales state after loop
         setTotalSales(totalSalesAmount);
 
         // Find most popular and revenue-generating items for each month
@@ -56,12 +55,12 @@ const IceCreamSales = () => {
         const revenueItemsByMonth = {};
 
         Object.keys(monthlyQuantity).forEach((month) => {
-          const [item, quantity] = findMax(monthlyQuantity[month]); 
+          const [item, quantity] = findMax(monthlyQuantity[month]);
           popularItemsByMonth[month] = { item, quantity };
         });
 
         Object.keys(monthlyRevenue).forEach((month) => {
-          const [item] = findMax(monthlyRevenue[month]); 
+          const [item] = findMax(monthlyRevenue[month]);
           revenueItemsByMonth[month] = item;
         });
 
