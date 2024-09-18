@@ -11,3 +11,23 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.main-container {
+  background-image: url('/public/icecream-img.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 120vh; 
+  padding: 70px; 
+ color: white;
+ font-weight: bold;
+ text-align: center;
+}
+
+.table-container{
+  max-width: 1000px;
+  margin: auto;
+  height: auto;
+  font-weight: 400;
+}

@@ -1,0 +1,131 @@
+import React, { useState, useEffect } from "react";
+
+const IceCreamSales = () => {
+  const [parsedData, setParsedData] = useState([]);
+  const [totalSales, setTotalSales] = useState(0);
+  const [monthlySales, setMonthlySales] = useState({});
+  const [popularItems, setPopularItems] = useState({});
+  const [revenueItems, setRevenueItems] = useState({});
+  const [itemOrderStats, setItemOrderStats] = useState({});
+
+  useEffect(() => {
+    fetch("/salesData.json") // Ensure the JSON file is inside the "public" folder
+      .then((response) => response.json())
+      .then((data) => {
+        setParsedData(data);
+
+        const monthlySalesData = {};
+        const monthlyQuantity = {};
+        const monthlyRevenue = {};
+        const itemStats = {};
+
+        let totalSalesAmount = 0; // Accumulator for total sales
+
+        data.forEach(({ Date, SKU, Quantity, TotalPrice }) => {
+          const month = Date.slice(0, 7); // Extract YYYY-MM format
+
+          // 1. Accumulate total sales
+          totalSalesAmount += TotalPrice;
+
+          // 2. Month-wise sales totals
+          monthlySalesData[month] = (monthlySalesData[month] || 0) + TotalPrice;
+
+          // 3. Track most popular item (quantity) and most revenue-generating item
+          if (!monthlyQuantity[month]) monthlyQuantity[month] = {};
+          if (!monthlyRevenue[month]) monthlyRevenue[month] = {};
+
+          monthlyQuantity[month][SKU] =
+            (monthlyQuantity[month][SKU] || 0) + Quantity;
+          monthlyRevenue[month][SKU] =
+            (monthlyRevenue[month][SKU] || 0) + TotalPrice;
+
+          // 4. Stats for most popular item
+          if (!itemStats[SKU]) itemStats[SKU] = [];
+          itemStats[SKU].push(Quantity);
+        });
+
+        // Set total sales state after loop
+        setTotalSales(totalSalesAmount);
+
+        // Find most popular and revenue-generating items for each month
+        const findMax = (obj) =>
+          Object.entries(obj).reduce((a, b) => (b[1] > a[1] ? b : a));
+
+        const popularItemsByMonth = {};
+        const revenueItemsByMonth = {};
+
+        Object.keys(monthlyQuantity).forEach((month) => {
+          const [item, quantity] = findMax(monthlyQuantity[month]); // Find the item and its quantity
+          popularItemsByMonth[month] = { item, quantity }; // Store both item and quantity
+        });
+
+        Object.keys(monthlyRevenue).forEach((month) => {
+          const [item] = findMax(monthlyRevenue[month]); // Find the item with most revenue
+          revenueItemsByMonth[month] = item;
+        });
+
+        // Compute min, max, and average orders for popular items
+        const itemOrderStatistics = {};
+        Object.keys(itemStats).forEach((item) => {
+          const orders = itemStats[item];
+          const min = Math.min(...orders);
+          const max = Math.max(...orders);
+          const avg = orders.reduce((a, b) => a + b, 0) / orders.length;
+          itemOrderStatistics[item] = { min, max, avg };
+        });
+
+        setMonthlySales(monthlySalesData);
+        setPopularItems(popularItemsByMonth);
+        setRevenueItems(revenueItemsByMonth);
+        setItemOrderStats(itemOrderStatistics);
+      });
+  }, []);
+
+  return (
+    <div>
+      <h1>Ice Cream Parlour Sales Analysis</h1>
+      <p>
+        <strong>Total Sales: </strong> {totalSales}
+      </p>
+
+      <h2>Month-wise Sales</h2>
+      <ul>
+        {Object.entries(monthlySales).map(([month, sales]) => (
+          <li key={month}>
+            {month}: {sales}
+          </li>
+        ))}
+      </ul>
+
+      <h2>Most Popular Items by Month</h2>
+      <ul>
+        {Object.entries(popularItems).map(([month, { item, quantity }]) => (
+          <li key={month}>
+            {month}: {item} (Quantity Sold: {quantity})
+          </li>
+        ))}
+      </ul>
+
+      <h2>Items Generating Most Revenue by Month</h2>
+      <ul>
+        {Object.entries(revenueItems).map(([month, item]) => (
+          <li key={month}>
+            {month}: {item}
+          </li>
+        ))}
+      </ul>
+
+      <h2>Order Stats for Popular Items</h2>
+      <ul>
+        {Object.entries(itemOrderStats).map(([item, stats]) => (
+          <li key={item}>
+            {item}: Min - {stats.min}, Max - {stats.max}, Avg -{" "}
+            {stats.avg.toFixed(2)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default IceCreamSales;
