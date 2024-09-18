@@ -10,7 +10,7 @@ const IceCreamSales = () => {
   const [itemOrderStats, setItemOrderStats] = useState({});
 
   useEffect(() => {
-    fetch("/salesData.json") // Ensure the JSON file is inside the "public" folder
+    fetch("/salesData.json") 
       .then((response) => response.json())
       .then((data) => {
         setParsedData(data);
@@ -20,10 +20,10 @@ const IceCreamSales = () => {
         const monthlyRevenue = {};
         const itemStats = {};
 
-        let totalSalesAmount = 0; // Accumulator for total sales
+        let totalSalesAmount = 0; 
 
         data.forEach(({ Date, SKU, Quantity, TotalPrice }) => {
-          const month = Date.slice(0, 7); // Extract YYYY-MM format
+          const month = Date.slice(0, 7); 
 
           // 1. Accumulate total sales
           totalSalesAmount += TotalPrice;
@@ -56,12 +56,12 @@ const IceCreamSales = () => {
         const revenueItemsByMonth = {};
 
         Object.keys(monthlyQuantity).forEach((month) => {
-          const [item, quantity] = findMax(monthlyQuantity[month]); // Find the item and its quantity
-          popularItemsByMonth[month] = { item, quantity }; // Store both item and quantity
+          const [item, quantity] = findMax(monthlyQuantity[month]); 
+          popularItemsByMonth[month] = { item, quantity };
         });
 
         Object.keys(monthlyRevenue).forEach((month) => {
-          const [item] = findMax(monthlyRevenue[month]); // Find the item with most revenue
+          const [item] = findMax(monthlyRevenue[month]); 
           revenueItemsByMonth[month] = item;
         });
 
